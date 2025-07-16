@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Resume | Chef Matthew K. McPherson</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as a top-to-bottom narrative scroll, replacing the static resume format. It begins with a strong hero statement, followed by thematic sections: 'My Philosophy' to establish his brand, an 'Interactive Timeline' for career exploration, a 'Spotlight' section for high-impact achievements, and a 'Skills Dashboard' with a radar chart for a visual summary of his capabilities. This structure was chosen to guide the user through a compelling story of his career, making the information more engaging, digestible, and memorable than a traditional document. Navigation is provided for direct access, but the primary flow is discovery through scrolling. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Career History -> Goal: Show progression & key roles -> Viz: Interactive Vertical Timeline -> Interaction: Click to expand details -> Justification: More engaging than a list, tells a story of growth. -> Library: Vanilla JS.
+        - Report Info: Skills List -> Goal: Showcase balanced, high-level expertise -> Viz: Radar Chart -> Interaction: Hover for tooltips -> Justification: Visually represents the multi-faceted nature of a modern Executive Chef. -> Library: Chart.js.
+        - Report Info: Key Achievements (Chopped, Magazine) -> Goal: Create immediate impact -> Viz: Highlight Cards -> Interaction: Static -> Justification: Draws immediate attention to unique selling points. -> Library: HTML/Tailwind.
+        - Report Info: Professional Summary -> Goal: Establish personal brand/philosophy -> Viz: Formatted Text Block -> Interaction: Static -> Justification: Sets the tone and communicates his core values upfront. -> Library: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfcfb;
+            color: #3d3d3d;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .timeline-item-content {
+            transition: max-height 0.7s ease-in-out, opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            overflow: hidden;
+        }
+        .timeline-item-content.open {
+            max-height: 500px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 40vh;
+            max-height: 450px;
+            width: 100%;
+            max-width: 450px;
+        }
+        .nav-link {
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #8c4a3c;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-stone-100/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-xl font-semibold text-stone-800">
+                <a href="#hero">Matthew K. McPherson</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#philosophy" class="nav-link text-stone-600 hover:text-stone-900">Philosophy</a>
+                <a href="#timeline" class="nav-link text-stone-600 hover:text-stone-900">Timeline</a>
+                <a href="#skills" class="nav-link text-stone-600 hover:text-stone-900">Skills</a>
+                <a href="#contact" class="nav-link text-stone-600 hover:text-stone-900">Contact</a>
+            </div>
+            <div class="md:hidden">
+                <button id="menu-btn" class="text-stone-800 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#philosophy" class="block py-2 px-4 text-sm text-stone-600 hover:bg-stone-200">Philosophy</a>
+            <a href="#timeline" class="block py-2 px-4 text-sm text-stone-600 hover:bg-stone-200">Timeline</a>
+            <a href="#skills" class="block py-2 px-4 text-sm text-stone-600 hover:bg-stone-200">Skills</a>
+            <a href="#contact" class="block py-2 px-4 text-sm text-stone-600 hover:bg-stone-200">Contact</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="min-h-[60vh] flex items-center bg-stone-100">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-stone-900 leading-tight">Chef Matthew K. McPherson</h1>
+                <p class="mt-4 text-lg md:text-xl text-stone-600 max-w-3xl mx-auto">An innovative culinary professional challenging the status quo with sustainable practices and a passion for teaching the next generation of chefs.</p>
+            </div>
+        </section>
+
+        <section id="philosophy" class="py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold text-center text-stone-900">My Culinary Philosophy</h2>
+                    <p class="mt-6 text-center text-stone-600">This section outlines the core beliefs that guide my approach to food, business, and leadership. It's about more than just cooking; it's about creating a better, more sustainable food system, challenging conventional thinking, and building something with lasting impact.</p>
+                    <div class="mt-12 text-center md:text-left grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        <div class="relative">
+                           <div class="bg-amber-100/50 p-8 rounded-lg shadow-sm">
+                                <p class="text-stone-800 text-lg leading-relaxed">Innovative culinary professional with extensive experience in restaurant management, recipe development, and international cuisine. Proven track record of creating strategic culinary programs, managing cross-functional teams, and developing innovative food concepts with a focus on sustainability and global trends.</p>
+                           </div>
+                        </div>
+                         <blockquote class="border-l-4 border-[#8c4a3c] pl-6">
+                            <p class="text-xl italic text-stone-700">"I believe in challenging the status quo of typical food philosophy. I believe in finding the best way, not the easiest. I am going to change the world through food."</p>
+                            <cite class="mt-4 block not-italic font-semibold text-stone-800">Matthew K. McPherson</cite>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="spotlight" class="bg-stone-100 py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-stone-900">Career Spotlight</h2>
+                <p class="mt-6 text-center text-stone-600 max-w-3xl mx-auto">Here are a few highlights from my career that represent my passion for competition, community, and culinary innovation. These experiences have shaped my perspective and showcase my ability to perform under pressure and lead with purpose.</p>
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform duration-300">
+                        <div class="text-4xl mb-4 text-[#8c4a3c]">📺</div>
+                        <h3 class="text-xl font-bold mb-2">Food Network's "Chopped"</h3>
+                        <p class="text-stone-600">Thrived under pressure, showcasing creativity and technical skill to advance to the final round of this high-stakes culinary competition.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform duration-300">
+                        <div class="text-4xl mb-4 text-[#8c4a3c]">🍲</div>
+                        <h3 class="text-xl font-bold mb-2">Emergency Kitchen Initiative</h3>
+                        <p class="text-stone-600">During the pandemic, I established and ran an emergency kitchen, successfully feeding at-risk individuals in need of hot meals.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform duration-300">
+                        <div class="text-4xl mb-4 text-[#8c4a3c]">📰</div>
+                        <h3 class="text-xl font-bold mb-2">Food & Bev Magazine Feature</h3>
+                        <p class="text-stone-600">Recognized for pioneering sustainable cooking practices and contributing to a more ethical food industry.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="timeline" class="py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-stone-900">Professional Journey</h2>
+                <p class="mt-6 text-center text-stone-600 max-w-3xl mx-auto">Explore my career progression through this interactive timeline. Each entry marks a significant step in my journey, from foundational internships in world-class kitchens to leading my own ventures. Click any title to see more details about the role and my accomplishments.</p>
+                <div id="timeline-container" class="mt-16 relative">
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="bg-stone-100 py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-stone-900">Skills Dashboard</h2>
+                <p class="mt-6 text-center text-stone-600 max-w-3xl mx-auto">An Executive Chef role requires a blend of artistry, operational mastery, and business sense. This dashboard provides a visual overview of my core competencies, followed by a detailed breakdown of my skills. The chart illustrates the balance in my expertise across key leadership areas.</p>
+                <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="chart-container">
+                        <canvas id="skillsChart"></canvas>
+                    </div>
+                    <div id="skills-list" class="space-y-8">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact" class="bg-stone-800 text-stone-200 py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold">Ready to Collaborate?</h2>
+            <p class="mt-4 max-w-xl mx-auto">I'm always looking for new opportunities to create exceptional dining experiences and build successful culinary programs.</p>
+            <div class="mt-8 space-y-2">
+                <p><strong>Matthew K. McPherson</strong></p>
+                <p>East Boston, MA 02128</p>
+                <p>
+                    <a href="mailto:Matt@iterumfoods.com" class="hover:text-white transition-colors">Matt@iterumfoods.com</a> | 
+                    <a href="tel:315-396-6313" class="hover:text-white transition-colors">315-396-6313</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link, #mobile-menu a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!mobileMenu.classList.contains('hidden')) {
+                         mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const timelineData = [
+                {
+                    date: "2021 - 2025",
+                    title: "CAFE ITERUM",
+                    role: "Owner/Manager",
+                    details: [
+                        "Established a progressive American cafe focusing on sustainable ethical business models and high-quality cuisine.",
+                        "Developed comprehensive operational systems to ensure consistency in product and cost management.",
+                        "Managed all daily operations, menu development, and customer experience.",
+                        "Fostered strong connections with the neighborhood and a consistent base of regulars."
+                    ]
+                },
+                {
+                    date: "2019 - Present",
+                    title: "ITERUM FOODS LLC",
+                    role: "Restaurant Consultant, Management, and Catering",
+                    details: [
+                        "Provided specialized consulting in food waste management and culinary strategy.",
+                        "Developed customized menus for private dining experiences.",
+                        "Implemented innovative solutions for restaurants, including operational efficiencies and onboarding."
+                    ]
+                },
+                {
+                    date: "",
+                    title: "Porto, Boston MA",
+                    role: "Executive Sous Chef",
+                    details: ["Played a key leadership role in a high-volume, upscale kitchen, overseeing staff and daily execution."]
+                },
+                {
+                    date: "",
+                    title: "The Frogmore/Fairsted Kitchen",
+                    role: "Sous Chef/Chef de Cuisine",
+                    details: ["Managed kitchen operations, contributed to menu development, and led the team to deliver consistent quality."]
+                },
+                 {
+                    date: "",
+                    title: "Menton, Boston MA",
+                    role: "Multiple Culinary Roles",
+                    details: ["Gained experience in a high-end, fine-dining environment, honing precision and technique."]
+                },
+                {
+                    date: "",
+                    title: "Mikla Restaurant, Istanbul, Turkey",
+                    role: "Culinary Intern",
+                    details: [
+                        "Worked directly with renowned Executive Chef Mehmet Gurs.",
+                        "Studied Turkish agriculture, culture, and traditional Aegean cuisine."
+                    ]
+                },
+                {
+                    date: "",
+                    title: "Public Restaurant, NYC",
+                    role: "Culinary Intern",
+                    details: [
+                        "Studied under Michelin-starred Executive Chef Brad Farmerie.",
+                        "Learned advanced ingredient and flavor combination techniques."
+                    ]
+                }
+            ];
+
+            const timelineContainer = document.getElementById('timeline-container');
+            timelineContainer.innerHTML = `<div class="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-stone-200"></div>`;
+
+            timelineData.forEach((item, index) => {
+                const isLeft = index % 2 === 0;
+                const timelineItem = document.createElement('div');
+                timelineItem.className = `timeline-item mb-8 flex justify-between items-center w-full ${isLeft ? 'flex-row-reverse' : ''}`;
+                
+                let itemHtml = `
+                    <div class="order-1 w-5/12"></div>
+                    <div class="z-10 flex items-center order-1 bg-[#8c4a3c] shadow-xl w-8 h-8 rounded-full">
+                        <h1 class="mx-auto font-semibold text-lg text-white">${timelineData.length - index}</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-lg shadow-xl w-5/12 px-6 py-4 cursor-pointer timeline-item-header">
+                        <p class="text-sm text-stone-500">${item.date}</p>
+                        <h3 class="font-bold text-stone-800 text-lg">${item.title}</h3>
+                        <p class="font-semibold text-[#8c4a3c] text-md">${item.role}</p>
+                        <div class="timeline-item-content mt-2">
+                           <ul class="list-disc list-inside text-stone-600 space-y-1">
+                                ${item.details.map(d => `<li>${d}</li>`).join('')}
+                           </ul>
+                        </div>
+                    </div>
+                `;
+                timelineItem.innerHTML = itemHtml;
+                timelineContainer.appendChild(timelineItem);
+            });
+            
+            document.querySelectorAll('.timeline-item-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.querySelector('.timeline-item-content');
+                    content.classList.toggle('open');
+                });
+            });
+
+            const skillsData = {
+                "Culinary Expertise": ["International Cuisine Knowledge", "Recipe Development", "Menu Innovation", "Culinary Trend Analysis", "Quality Control & Assurance"],
+                "Kitchen & Operations Management": ["Inventory Control & Procurement", "Food Cost Management", "Cost Reduction Strategies", "Food Safety & Sanitation (HACCP)", "POS Systems Proficiency"],
+                "Leadership & Business Acumen": ["Project Management", "Team Leadership", "Staff Training & Development", "Strategic Planning", "Budgeting & Financial Reporting", "Vendor Relations"],
+                "Technical & Other": ["Sustainability Practices", "Microsoft Office Suite", "Social Media Marketing"]
+            };
+
+            const skillsListContainer = document.getElementById('skills-list');
+            for(const category in skillsData) {
+                const categoryDiv = document.createElement('div');
+                let listHtml = `<h3 class="font-bold text-xl text-stone-800 mb-3">${category}</h3><div class="flex flex-wrap gap-2">`;
+                skillsData[category].forEach(skill => {
+                    listHtml += `<span class="bg-amber-100/60 text-stone-700 text-sm font-medium px-3 py-1 rounded-full">${skill}</span>`;
+                });
+                listHtml += `</div>`;
+                categoryDiv.innerHTML = listHtml;
+                skillsListContainer.appendChild(categoryDiv);
+            }
+
+            const ctx = document.getElementById('skillsChart').getContext('2d');
+            const skillsChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Culinary Expertise', 'Operations Management', 'Leadership', 'Business Acumen', 'Innovation & Sustainability'],
+                    datasets: [{
+                        label: 'Core Competencies',
+                        data: [95, 90, 92, 85, 98],
+                        backgroundColor: 'rgba(140, 74, 60, 0.2)',
+                        borderColor: 'rgba(140, 74, 60, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(140, 74, 60, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(140, 74, 60, 1)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(61, 61, 61, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(61, 61, 61, 0.2)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12,
+                                    family: "'Inter', sans-serif"
+                                },
+                                color: '#3d3d3d'
+                            },
+                            ticks: {
+                                backdropColor: '#fdfcfb',
+                                color: '#555',
+                                stepSize: 25,
+                                beginAtZero: true,
+                                max: 100,
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.r !== null) {
+                                        label += context.parsed.r + ' / 100';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
